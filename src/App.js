@@ -1,4 +1,5 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, 
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import './App.css';
 import initializeAuthentication from './Firebase/firebase.init';
@@ -8,6 +9,7 @@ const googleProvider = new GoogleAuthProvider();
 
 
 function App() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +27,10 @@ const handleGoogleSignIn = () => {
 
 const toggleLogin = e => {
   setIsLogin(e.target.checked);
+}
+
+const handleNameChange = e => {
+  setName(e.target.value);
 }
 
 const handleEmailChange = e => {
@@ -70,10 +76,18 @@ const registerNewUser = (email, password) => {
     console.log(user);
     setError('');
     verifyEmail();
+    setUserName();
   })
   .catch(error => {
     setError(error.message);
   })
+}
+
+const setUserName = () => {
+updateProfile(auth.currentUser, {
+  displayName: name
+})
+.then(result => { })
 }
 
 const verifyEmail = () => {
@@ -92,6 +106,12 @@ const handleResetPassword = () => {
     <div className="mx-5 my-5">
       <form onSubmit={handleRegistration}>
         <h3 className="text-primary">Please {isLogin ? 'Login' : 'Register'} </h3>
+  {!isLogin && <div className="row mb-3">
+    <label htmlFor="inputAddress" className="col-sm-2 col-form-label">Name</label>
+    <div className="col-sm-10">
+    <input onBlur={handleNameChange} type="text" className="form-control" id="inputAddress" placeholder="Your Name"/>
+    </div>
+  </div>}
   <div className="row mb-3">
     <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
     <div className="col-sm-10">
@@ -117,7 +137,7 @@ const handleResetPassword = () => {
   </div>
   <div className="text-danger">{error}</div>
   <button type="submit" className="btn btn-primary">{isLogin? 'Login' : 'Register'}</button>
-  <button onClick={handleResetPassword} type="button" className="btn btn-primary">Reset Password</button>
+  <button onClick={handleResetPassword} type="button" className="btn btn-primary mx-3">Reset Password</button>
 </form>
 <br /><br /><br /><br />
      <button onClick={handleGoogleSignIn}>Google sign In</button>
